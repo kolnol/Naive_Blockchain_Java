@@ -32,7 +32,7 @@ public class BlockchainManager {
     }
 
     public Block generateNextBlock(Data blockData) {
-        Block prevBlock = getLatestBlock();//TODO
+        Block prevBlock = getLatestBlock();
         Long nextIndex = prevBlock.getIndex() + 1;
         Date nextTimestamp = new Date();
         String nextHash = calculateHash(nextIndex,
@@ -41,10 +41,10 @@ public class BlockchainManager {
                 blockData);
 
         return new Block(nextIndex,
-                prevBlock.getHash(),
+                nextHash,
                 nextTimestamp,
                 blockData,
-                nextHash);
+                prevBlock.getHash());
     }
 
     public Block getGenesisBlock() {
@@ -52,7 +52,7 @@ public class BlockchainManager {
                 0L,
                 "0",
                 new Date(),
-                new Data("Genesis src.main.java.Block"),
+                new Data("Genesis Block"),
                 null
         );
     }
@@ -68,7 +68,7 @@ public class BlockchainManager {
         } else if (!prevBlock.getHash().equals(newBlock.getPrevHash())) {
             System.err.println("Invalid previous Hash");
             return false;
-        } else if (calculateHashForBlock(newBlock).equals(newBlock.getHash())) {
+        } else if (!calculateHashForBlock(newBlock).equals(newBlock.getHash())) {
             System.err.println("Invalid new Hash");
             return false;
         }
@@ -104,7 +104,13 @@ public class BlockchainManager {
         this.blockchain = blockchain;
     }
 
-    public void addBlock(Block block) {
-        this.blockchain.add(block);
+    public boolean addBlock(Block block) {
+        if(isValidBlock(this.getLatestBlock(), block)) {
+            this.blockchain.add(block);
+            return true;
+        } else {
+            System.err.println("Invalid Block");
+            return false;
+        }
     }
 }
